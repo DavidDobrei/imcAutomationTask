@@ -1,14 +1,8 @@
 package com.imc.automation.pageobjectmodels;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-
-import java.util.List;
-import java.util.Set;
 
 public class CoursesManager extends BasePage {
     String partialText = "DevOps Fundamentals: Tools and Techniques";
@@ -16,15 +10,15 @@ public class CoursesManager extends BasePage {
     private By createButton = By.id("tbb_createGroup");
     private By coursesTable = By.id("gridcolumn-1038");
     private By searchBox = By.id("searchTerm-inputEl");
-    private By iFrame = By.id("iframe_navi:1156");
-    private By iFrame1 = By.id("contentframe");
+    private By navi1156 = By.id("iframe_navi:1156");
+    private By contentframe = By.id("contentframe");
     private By iFrameParticipants = By.id("iframe_participants.3.900507");
     private By searchButton = By.id("startSearchButton");
     private By toolbarParticipantAdministration = By.id("tbb_participants-btnIconEl");
     private By buttonParticipantAdministration = By.id("tbi_participants-itemEl");
     private By courseTableLoadingSpinner = By.id("loadmask-1133-msgEl");
     private By userProfile = By.className("avatarWrapper");
-    private By signOutButton = By.xpath("//*[@id=\":rc:\"]/div/div[2]/ul[2]/li/a");
+    private By signOutButton =  By.cssSelector("a[title='Sign out']");
 
     private By courseToBeFound = By.xpath("//tr[contains(@class, 'x-grid-row')]//td[contains(normalize-space(string(.)), '" + partialText + "')]");
 
@@ -36,8 +30,8 @@ public class CoursesManager extends BasePage {
     }
     // switch to iframe that contains
     private void switchToFrame() {
-        driver.switchTo().frame(driver.findElement(iFrame1));
-        driver.switchTo().frame(driver.findElement(iFrame));
+        driver.switchTo().frame(driver.findElement(contentframe));
+        driver.switchTo().frame(driver.findElement(navi1156));
     }
     // switch back to default content
     private void switchToDefaultContent() {
@@ -53,9 +47,13 @@ public class CoursesManager extends BasePage {
         return wait.until(ExpectedConditions.visibilityOfElementLocated(coursesTable)).isDisplayed();
     }
     // type course into search field
-    public void searchCourses (String courseName) {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(searchBox));
-        driver.findElement(searchBox).sendKeys(courseName);
+    public void searchCourses (String courseName) throws InterruptedException {
+        //switchToFrame();
+
+        waitForElement(searchBox).sendKeys(courseName);
+        //Thread.sleep(5000);
+        //wait.until(ExpectedConditions.visibilityOfElementLocated(searchBox));
+        //driver.findElement(searchBox).sendKeys(courseName);
     }
     // click on search button
     public void clickSearchButton () {
