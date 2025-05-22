@@ -10,6 +10,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -123,43 +125,47 @@ public class ConcludeCourseByProgressTest extends BaseTest {
         logger.info("Searching for course as admin");
         courseManager.searchCourses("DevOps Fundamentals Tools and Techniques");
         courseManager.clickSearchButton();
+        Thread.sleep(6000);
         Assertions.assertTrue(courseManager.courseToBeFoundDisplayed(), "Course not found in admin panel");
 
         // #21-22 Participant admin
         logger.info("Opening participant administration for selected course");
         courseManager.selectSearchedCourse();
-        String originalWindow = driver.getWindowHandle();
-        Set<String> existingWindows = driver.getWindowHandles();
+
         ParticipantAdministration participantAdministration = courseManager.openParticipantAdministration();
-        new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(driver1 -> driver1.getWindowHandles().size() > existingWindows.size());
-        Set<String> updatedWindows = driver.getWindowHandles();
-        updatedWindows.removeAll(existingWindows);
-        String newTabHandle = updatedWindows.iterator().next();
-        driver.switchTo().window(newTabHandle);
-        Assertions.assertTrue(participantAdministration.isUlrCorrect(), "Participant admin URL incorrect");
+        Thread.sleep(3000);
+        Set<String> windowHandles = driver.getWindowHandles();
+        List<String> browserTabs = new ArrayList<>(windowHandles);
+
+        driver.switchTo().window(browserTabs.get(1));
+        Assertions.assertEquals("https://14-24-masterdb.imc-ms-deployment.imc-cs.com/ils/navigation/administrator/content_folder/content_course_folder/content_course_manager/participants.3.900507",participantAdministration.currentUrl());
 
         // #23-24 Cancel and remove user
         logger.info("Searching and cancelling participant: mystaffuser2012");
         participantAdministration.searchParticipant("mystaffuser2012");
         participantAdministration.clickSearchButton();
+        Thread.sleep(1000);
         Assertions.assertTrue(participantAdministration.isParticipantFound("mystaffuser2012"), "User not found in participant list");
-        participantAdministration.cancelParticipant();
+        participantAdministration.cancelAnyParticipant("mystaffuser2012");
 
         logger.info("Opening cancellation register and removing participant");
-        participantAdministration.openCancellationRegister();
-        Assertions.assertTrue(participantAdministration.isSearchBoxCancellationVisible(), "Cancellation search box missing");
-        participantAdministration.searchCanceledParticipant("mystaffuser2012");
-        participantAdministration.selectCanceledUser("mystaffuser2012");
-        participantAdministration.removeParticipant();
+        participantAdministration.selectCancelledTab();
+        //Assertions.assertTrue(participantAdministration.isSearchBoxCancellationVisible(), "Cancellation search box missing");
+        participantAdministration.findAndRemoveCancelledParticipant("mystaffuser2012");
+        //participantAdministration.selectCanceledUser("mystaffuser2012");
+        //participantAdministration.removeParticipant();
 
         logger.info("Saving and closing participant admin window");
-        participantAdministration.switchToToolbarFrame();
-        By saveAndCloseButton = By.xpath("//a[@data-qtip='Save and close']");
-        String iframeToClose = "iframe_participants.3.900507";
-        participantAdministration.clickAndWaitForIframeToClose(saveAndCloseButton, iframeToClose);
+        participantAdministration.saveAndCloseParticipantAdministration();
+        //By saveAndCloseButton = By.xpath("//a[@data-qtip='Save and close']");
+        //String iframeToClose = "iframe_participants.3.900507";
+        //participantAdministration.clickAndWaitForIframeToClose(saveAndCloseButton, iframeToClose);
 
-        logger.info("ConcludeCourseByProgress test completed successfully");
+        logger.info("Logout admin");
+        Thread.sleep(3000);
+        //participantAdministration.saveAndCloseParticipantAdministration();
+        driver.switchTo().window(browserTabs.getFirst());
+        courseManager.signOut();
     }
 }
 
