@@ -29,11 +29,11 @@ public class BaseTest {
 
 
     }
-    /*
+    
     @AfterEach
     public void tearDown() {
         if (driver != null) {
             driver.quit();
         }
-    } */
+    
 }
